@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>클립 온리 렌탈 견적 계산기</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Apple SD Gothic Neo', sans-serif; background: #f5f5f5; color: #1a1a1a; font-size: 14px; padding: 16px; }
+  h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #888; margin-bottom: 20px; }
+  .card { background: #fff; border-radius: 14px; padding: 20px; border: 1px solid #e8e8e8; max-width: 540px; margin: 0 auto; }
+  .card-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .card-sub { font-size: 12px; color: #888; margin-bottom: 16px; }
+  .sec-label { font-size: 11px; font-weight: 600; color: #aaa; letter-spacing: 0.06em; text-transform: uppercase; margin: 14px 0 8px; }
+  .srow { margin-bottom: 12px; }
+  .slbl { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .slbl span:first-child { font-size: 13px; color: #555; }
+  .slbl .val { font-size: 13px; font-weight: 600; color: #111; }
+  input[type=range] { width: 100%; accent-color: #3b82f6; }
+  input[type=number] { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 6px 10px; font-size: 13px; margin-top: 4px; }
+  .breakdown { background: #f9f9f9; border-radius: 10px; padding: 14px; margin-top: 14px; }
+  .brow { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dashed #eee; font-size: 13px; }
+  .brow:last-child { border-bottom: none; }
+  .brow-l { color: #666; }
+  .brow-r { font-weight: 600; color: #111; }
+  .total-row { display: flex; justify-content: space-between; align-items: baseline; margin-top: 14px; padding-top: 12px; border-top: 2px solid #111; }
+  .total-label { font-size: 13px; color: #555; }
+  .total-val { font-size: 22px; font-weight: 700; color: #111; }
+  .perclip { text-align: right; font-size: 12px; color: #aaa; margin-top: 4px; }
+  .btn-row { display: flex; gap: 8px; margin-top: 14px; }
+  .btn-pdf { flex: 1; background: #111; color: #fff; border: none; border-radius: 12px; padding: 14px 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .btn-xlsx { flex: 1; background: #217346; color: #fff; border: none; border-radius: 12px; padding: 14px 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .btn-pdf:active, .btn-xlsx:active { opacity: 0.8; }
+</style>
+</head>
+<body>
+<h1>클립 온리 렌탈 견적</h1>
+<p class="subtitle">분위기메이커 · 기존 시설 펜스 활용</p>
+<div class="card">
+  <div class="card-title">클립 온리 렌탈</div>
+  <div class="card-sub">기존 시설 펜스에 클립만 설치</div>
+  <div class="sec-label">클립 & 기간</div>
+  <div class="srow">
+    <div class="slbl"><span>사용 클립 수</span><span class="val" id="a-clips-out">3,000개</span></div>
+    <input type="range" min="500" max="10000" step="100" value="3000" id="a-clips-range" oninput="document.getElementById('a-clips-num').value=this.value; calc()">
+    <input type="number" min="500" max="10000" step="100" value="3000" id="a-clips-num" oninput="document.getElementById('a-clips-range').value=this.value; calc()" placeholder="직접 입력">
+  </div>
+  <div class="srow">
+    <div class="slbl"><span>렌탈 기간</span><span class="val" id="a-days-out">3일</span></div>
+    <input type="range" min="1" max="30" step="1" value="3" id="a-days" oninput="calc()">
+  </div>
+  <div class="srow">
+    <div class="slbl"><span>클립 1개 일 렌탈료</span><span class="val" id="a-rate-out">150원</span></div>
+    <input type="range" min="50" max="500" step="10" value="150" id="a-rate" oninput="calc()">
+  </div>
+  <div class="sec-label">인건비</div>
+  <div class="srow">
+    <div class="slbl"><span>설치 인원</span><span class="val" id="a-ip-out">2명</span></div>
+    <input type="range" min="1" max="10" step="1" value="2" id="a-ip" oninput="calc()">
+  </div>
+  <div class="srow">
+    <div class="slbl"><span>설치 일당 (원/인)</span><span class="val" id="a-iw-out">150,000원</span></div>
+    <input type="range" min="80000" max="300000" step="10000" value="150000" id="a-iw" oninput="calc()">
+  </div>
+  <div class="srow">
+    <div class="slbl"><span>철거 인원</span><span class="val" id="a-rp-out">2명</span></div>
+    <input type="range" min="1" max="10" step="1" value="2" id="a-rp" oninput="calc()">
+  </div>
+  <div class="srow">
+    <div class="slbl"><span>철거 일당 (원/인)</span><span class="val" id="a-rw-out">150,000원</span></div>
+    <input type="range" min="80000" max="300000" step="10000" value="150000" id="a-rw" oninput="calc()">
+  </div>
+  <div class="sec-label">기타</div>
+  <div class="srow">
+    <div class="slbl"><span>교통/운반비 (왕복)</span><span class="val" id="a-tr-out">100,000원</span></div>
+    <input type="range" min="0" max="500000" step="10000" value="100000" id="a-tr" oninput="calc()">
+  </div>
+  <div class="srow">
+    <div class="slbl"><span>마진율</span><span class="val" id="a-mg-out">20%</span></div>
+    <input type="range" min="0" max="50" step="5" value="20" id="a-mg" oninput="calc()">
+  </div>
+  <div class="breakdown" id="a-breakdown"></div>
+  <div class="total-row">
+    <span class="total-label">최종 견적 (VAT 포함)</span>
+    <span class="total-val" id="a-total">-</span>
+  </div>
+  <div class="perclip" id="a-perclip"></div>
+  <div class="btn-row">
+    <button class="btn-pdf" onclick="downloadPDF()">📄 PDF 견적서</button>
+    <button class="btn-xlsx" onclick="downloadXLSX()">📊 엑셀 견적서</button>
+  </div>
+</div>
+<p style="font-size:11px;color:#bbb;margin-top:12px;text-align:center;">교통·운반비 왕복 기준 · VAT 10% 포함</p>
+
+<script>
+function won(n){return Math.round(n).toLocaleString('ko-KR')+'원';}
+function g(id){return +document.getElementById(id).value;}
+function s(id,v){document.getElementById(id).textContent=v;}
+function mkrows(arr){
+  return arr.map(r=>`<div class="brow"><span class="brow-l">${r[0]}</span><span class="brow-r">${r[1]}</span></div>`).join('');
+}
+function getToday(){
+  const d=new Date();
+  return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0');
+}
+
+function calc(){
+  const clips=g('a-clips-range'),days=g('a-days'),rate=g('a-rate');
+  const ip=g('a-ip'),iw=g('a-iw'),rp=g('a-rp'),rw=g('a-rw'),tr=g('a-tr'),mg=g('a-mg');
+  s('a-clips-out',clips.toLocaleString()+'개');
+  s('a-days-out',days+'일');
+  s('a-rate-out',rate.toLocaleString()+'원');
+  s('a-ip-out',ip+'명'); s('a-iw-out',iw.toLocaleString()+'원');
+  s('a-rp-out',rp+'명'); s('a-rw-out',rw.toLocaleString()+'원');
+  s('a-tr-out',tr.toLocaleString()+'원'); s('a-mg-out',mg+'%');
+  const clipCost=clips*days*rate, installC=ip*iw, removeC=rp*rw;
+  const sub=clipCost+installC+removeC+tr;
+  const withMargin=Math.round(sub*(1+mg/100));
+  const vat=Math.round(withMargin*0.1);
+  const total=withMargin+vat;
+  document.getElementById('a-breakdown').innerHTML=mkrows([
+    ['클립 렌탈료 ('+clips.toLocaleString()+'개 × '+days+'일 × '+rate+'원)',won(clipCost)],
+    ['설치 인건비 ('+ip+'명 × '+iw.toLocaleString()+'원)',won(installC)],
+    ['철거 인건비 ('+rp+'명 × '+rw.toLocaleString()+'원)',won(removeC)],
+    ['교통/운반비 (왕복)',won(tr)],
+    ['소계 (공급가)',won(withMargin)],
+    ['부가세 (VAT 10%)',won(vat)],
+  ]);
+  s('a-total',won(total));
+  s('a-perclip','클립 단가 '+(total/clips/days).toFixed(1)+'원/개/일 (VAT포함)');
+}
+
+function getData(){
+  const clips=g('a-clips-range'),days=g('a-days'),rate=g('a-rate');
+  const ip=g('a-ip'),iw=g('a-iw'),rp=g('a-rp'),rw=g('a-rw'),tr=g('a-tr'),mg=g('a-mg');
+  const clipCost=clips*days*rate, installC=ip*iw, removeC=rp*rw;
+  const sub=clipCost+installC+removeC+tr;
+  const withMargin=Math.round(sub*(1+mg/100));
+  const vat=Math.round(withMargin*0.1);
+  const total=withMargin+vat;
+  return {
+    title:'펜스아트 클립 온리 렌탈', mg, sub:withMargin, vat, total,
+    items:[
+      {cat:'클립 렌탈',desc:'펜스아트 클립',qty:clips,unit:'개',price:days*rate,days:days,supply:clipCost},
+      {cat:'인건비',desc:'설치 인건비',qty:ip,unit:'인',price:iw,days:1,supply:installC},
+      {cat:'인건비',desc:'철거 인건비',qty:rp,unit:'인',price:rw,days:1,supply:removeC},
+      {cat:'기타',desc:'교통/운반비 (왕복)',qty:1,unit:'식',price:tr,days:1,supply:tr},
+    ]
+  };
+}
+
+function buildPDFHtml(d, client, today){
+  const rows=d.items.map(it=>{
+    const itVat=Math.round(it.supply*0.1);
+    const itTotal=it.supply+itVat;
+    return `<tr>
+      <td>${it.cat}</td><td>${it.desc}</td>
+      <td style="text-align:center;">${it.qty.toLocaleString()}</td>
+      <td style="text-align:center;">${it.unit}</td>
+      <td style="text-align:right;">${Math.round(it.price).toLocaleString()}</td>
+      <td style="text-align:center;">${it.days}</td>
+      <td style="text-align:right;">${it.supply.toLocaleString()}</td>
+      <td style="text-align:right;color:#555;">${itVat.toLocaleString()}</td>
+      <td style="text-align:right;font-weight:600;">${itTotal.toLocaleString()}</td>
+    </tr>`;
+  }).join('');
+  return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
+  <style>
+    body{font-family:-apple-system,'Apple SD Gothic Neo',sans-serif;padding:36px;color:#111;font-size:12px;}
+    h1{font-size:20px;font-weight:800;margin-bottom:4px;}
+    .date{text-align:right;font-size:11px;color:#888;margin-bottom:14px;}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;border:1.5px solid #111;margin-bottom:18px;}
+    .info-col{padding:10px 14px;border-right:1px solid #ddd;}
+    .info-col:last-child{border-right:none;}
+    .col-head{font-size:10px;font-weight:700;color:#888;letter-spacing:0.05em;margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px;}
+    .info-row{display:flex;justify-content:space-between;font-size:11px;padding:2px 0;gap:8px;}
+    .info-lbl{color:#888;white-space:nowrap;}
+    .total-col{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;background:#f9f9f9;padding:14px 18px;}
+    .total-tag{font-size:10px;font-weight:700;color:#3b82f6;margin-bottom:6px;letter-spacing:0.04em;}
+    .total-big{font-size:36px;font-weight:800;color:#111;letter-spacing:-1px;line-height:1;}
+    .total-sub{font-size:11px;color:#888;margin-top:4px;}
+    .dot{color:#3b82f6;}
+    table.items{width:100%;border-collapse:collapse;margin-top:6px;}
+    table.items th{background:#111;color:#fff;padding:7px 5px;text-align:left;font-size:11px;}
+    table.items td{padding:7px 5px;border-bottom:1px dashed #ddd;font-size:11px;vertical-align:middle;}
+    .subtotal-row td{font-weight:700;border-top:2px solid #111;border-bottom:none;font-size:12px;background:#f9f9f9;}
+    .vat-row td{color:#555;font-size:11px;border-bottom:1px dashed #ddd;}
+    .total-final-row td{font-weight:800;font-size:13px;border-top:2px solid #111;border-bottom:none;}
+    .footer{margin-top:20px;font-size:11px;color:#666;line-height:2;}
+    .brand{text-align:right;font-size:13px;font-weight:800;color:#3b82f6;margin-top:16px;}
+  </style></head><body>
+  <div class="date">Date. ${today}</div>
+  <h1>${d.title}</h1>
+  <div class="info-grid">
+    <div class="info-col">
+      <div class="col-head">Provider.</div>
+      <div class="info-row"><span class="info-lbl">상호</span><span>분위기메이커</span></div>
+      <div class="info-row"><span class="info-lbl">대표</span><span>장종민</span></div>
+      <div class="info-row"><span class="info-lbl">사업자</span><span>593-73-00452</span></div>
+      <div class="info-row"><span class="info-lbl">전화</span><span>010-2062-8553</span></div>
+      <div class="info-row"><span class="info-lbl">이메일</span><span>bnwgmaker@naver.com</span></div>
+    </div>
+    <div class="info-col">
+      <div class="col-head">Client info.</div>
+      <div class="info-row"><span class="info-lbl">거래처</span><span>${client}</span></div>
+    </div>
+    <div class="info-col total-col">
+      <div class="total-tag"><span class="dot">●</span> Total</div>
+      <div class="total-big">${d.total.toLocaleString()}</div>
+      <div class="total-sub">원 (VAT 포함)</div>
+    </div>
+  </div>
+  <table class="items">
+    <thead><tr>
+      <th style="width:10%">항목</th><th style="width:22%">내용</th>
+      <th style="width:7%;text-align:center;">수량</th><th style="width:6%;text-align:center;">단위</th>
+      <th style="width:10%;text-align:right;">단가</th><th style="width:5%;text-align:center;">일</th>
+      <th style="width:13%;text-align:right;">공급가</th>
+      <th style="width:11%;text-align:right;">부가세(10%)</th>
+      <th style="width:13%;text-align:right;">합계</th>
+      <th style="width:8%">참고</th>
+    </tr></thead>
+    <tbody>
+      ${rows}
+      <tr style="height:24px;"><td colspan="10" style="border-bottom:1px dashed #ddd;"></td></tr>
+      <tr style="height:24px;"><td colspan="10" style="border-bottom:1px dashed #ddd;"></td></tr>
+      <tr class="subtotal-row">
+        <td colspan="6" style="text-align:right;padding-right:12px;">공급가 소계</td>
+        <td style="text-align:right;">${d.sub.toLocaleString()}</td>
+        <td style="text-align:right;">${d.vat.toLocaleString()}</td>
+        <td colspan="2"></td>
+      </tr>
+      <tr class="total-final-row">
+        <td colspan="6" style="text-align:right;padding-right:12px;"><span class="dot">●</span> 소계 (VAT 포함)</td>
+        <td colspan="2" style="text-align:right;font-size:15px;">${d.total.toLocaleString()} 원</td>
+        <td colspan="2"></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="footer">
+    - 결제방식: 계좌이체 또는 카드결제 가능<br>
+    - 견적에 대한 문의는 언제든 연락바랍니다.<br>
+    - 상황에 따라 견적에 대한 협의 및 조정이 가능합니다.
+  </div>
+  <div class="brand"><span class="dot">●</span>분위기메이커</div>
+  </body></html>`;
+}
+
+function downloadPDF(){
+  const today=getToday();
+  const d=getData();
+  const client=prompt('거래처명을 입력하세요 (없으면 엔터)','') || '';
+  const html=buildPDFHtml(d,client,today);
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const w=window.open(url,'_blank');
+  setTimeout(()=>{if(w)w.print();},800);
+}
+
+function downloadXLSX(){
+  const today=getToday();
+  const d=getData();
+  const client=prompt('거래처명을 입력하세요 (없으면 엔터)','') || '';
+  let csv='펜스아트 클립 온리 렌탈 견적서\n';
+  csv+='Date.,'+today+'\n\n';
+  csv+='상호,분위기메이커,거래처,'+client+',총액(VAT포함),'+d.total.toLocaleString()+'원\n';
+  csv+='대표,장종민,,,\n사업자,593-73-00452,,,\n전화,010-2062-8553,,,\n이메일,bnwgmaker@naver.com,,,\n\n';
+  csv+='항목,내용,수량,단위,단가,일,공급가,부가세(10%),합계(VAT포함),참고\n';
+  d.items.forEach(it=>{
+    const itVat=Math.round(it.supply*0.1);
+    csv+=it.cat+','+it.desc+','+it.qty+','+it.unit+','+Math.round(it.price)+','+it.days+','+it.supply+','+itVat+','+(it.supply+itVat)+',\n';
+  });
+  csv+='\n,,,,,공급가 소계,'+d.sub+','+d.vat+',,\n';
+  csv+=',,,,,소계(VAT포함),,,'+d.total+',\n';
+  csv+='결제방식: 계좌이체 또는 카드결제 가능\n';
+  csv+='견적에 대한 문의는 언제든 연락바랍니다.\n';
+  csv+='상황에 따라 견적에 대한 협의 및 조정이 가능합니다.\n';
+  csv+='●분위기메이커\n';
+  const bom='\uFEFF';
+  const blob=new Blob([bom+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='클립온리_견적서_'+today+'.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+calc();
+</script>
+</body>
+</html>
